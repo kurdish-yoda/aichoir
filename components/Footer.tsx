@@ -1,0 +1,37 @@
+
+import React from 'react';
+
+const Footer: React.FC = () => {
+  return (
+    <footer className="bg-[#0E1117] border-t border-[#E2DFD8]/06 pt-20 pb-12">
+      <div className="container mx-auto px-6 max-w-[1100px]">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-10 mb-20">
+          <div className="font-['Syne'] font-extrabold text-[14px] text-[#7A7D85] tracking-tight">
+            AI CHOIR
+          </div>
+          
+          <div className="flex gap-8">
+            {['LinkedIn', 'Twitter', 'Email'].map((item) => (
+              <a 
+                key={item} 
+                href="#"
+                className="font-['Inter'] text-[13px] text-[#4A4D55] hover:text-[#7A7D85] transition-colors interactive"
+              >
+                {item}
+              </a>
+            ))}
+          </div>
+        </div>
+        
+        <div className="text-center">
+          <div className="font-['JetBrains_Mono'] text-[11px] text-[#4A4D55] uppercase tracking-[0.12em] mb-4">
+            © 2025 AI CHOIR
+          </div>
+          <div className="w-full h-[1px] bg-[#E2DFD8]/06"></div>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;

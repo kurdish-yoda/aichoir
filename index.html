@@ -1,0 +1,65 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI CHOIR | Surgically Optimized Workflows</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            cursor: none !important;
+        }
+        @media (pointer: coarse) {
+            * {
+                cursor: auto !important;
+            }
+        }
+        ::selection {
+            background: rgba(226, 223, 216, 0.2);
+            color: #E2DFD8;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0E1117; }
+        ::-webkit-scrollbar-thumb { background: #4A4D55; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #7A7D85; }
+
+        html.lenis {
+            height: auto;
+        }
+        .lenis.lenis-smooth {
+            scroll-behavior: auto;
+        }
+        .lenis.lenis-smooth [data-lenis-prevent] {
+            overscroll-behavior: contain;
+        }
+        .lenis.lenis-stopped {
+            overflow: hidden;
+        }
+        .lenis.lenis-scrolling iframe {
+            pointer-events: none;
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "@studio-freight/lenis": "https://esm.sh/@studio-freight/lenis@^1.0.42",
+    "gsap/": "https://esm.sh/gsap@^3.14.2/",
+    "gsap": "https://esm.sh/gsap@^3.14.2"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-[#0E1117] text-[#E2DFD8] antialiased overflow-x-hidden">
+    <div id="root"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
