@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3:*)",
+      "Bash(conda create:*)",
+      "Bash(__conda_exe create:*)",
+      "Bash(~/miniconda3/bin/conda create:*)",
+      "Bash(~/miniconda3/envs/aichoir/bin/pip install:*)",
+      "Bash(~/miniconda3/envs/aichoir/bin/playwright install:*)",
+      "Bash(~/miniconda3/envs/aichoir/bin/python3:*)"
+    ]
+  }
+}

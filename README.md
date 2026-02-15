@@ -1,20 +1,41 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+![AI Choir Hero](./public/hero-screenshot.png)
 
-# Run and deploy your AI Studio app
+# AI Choir
 
-This contains everything you need to run your app locally.
+AI Choir is an AI integration agency that works alongside businesses to surgically automate the right parts of their workflow — not everything, just the parts where AI removes friction without sacrificing the human touch that matters.
 
-View your app in AI Studio: https://ai.studio/apps/drive/16JX6knbFA9hxkgyzUZ1vhIq8HBGKw-L7
+## What We Do
 
-## Run Locally
+We identify exactly where AI saves your team time, then build and integrate the tools to make it happen. That means custom automations, internal tooling, and AI-assisted workflows — built scalpel-precise for your specific operation.
 
-**Prerequisites:**  Node.js
+## This Repository
 
+This is the agency's public-facing landing site, built with React, TypeScript, and Vite. It also includes an internal **Court Search** tool — a Florida and New York civil court records lookup used for lending due diligence.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### Tech Stack
+
+- **React 19** + **TypeScript** + **Vite**
+- **GSAP** — scroll-driven and entrance animations
+- **Lenis** — smooth scrolling
+- **Flask** (Python) — backend API for the Court Search tool
+- **Playwright** — headless browser automation for scraping public court portals
+- **Deployed on Render**
+
+### Getting Started
+
+**Frontend**
+```bash
+npm install
+npm run dev
+```
+
+**Backend**
+```bash
+conda activate aichoir
+cd backend
+pip install -r requirements.txt
+playwright install chromium
+python app.py
+```
+
+See `architectureplan.md` for the full integration architecture.
