@@ -27,12 +27,6 @@ const Navbar: React.FC = () => {
     }
   };
 
-  const navItems = [
-    { label: 'Process', id: 'process' },
-    { label: 'Results', id: 'results' },
-    { label: 'About', id: 'about' },
-  ];
-
   const isCourtSearch = location.pathname === '/court-search';
 
   return (
@@ -46,16 +40,6 @@ const Navbar: React.FC = () => {
 
         <div className="hidden md:flex items-center gap-10">
           <div className="flex gap-8">
-            {navItems.map((item) => (
-              <a
-                key={item.id}
-                href={`#${item.id}`}
-                onClick={(e) => handleNavClick(e, item.id)}
-                className="font-['Inter'] text-[13px] text-[#7A7D85] hover:text-[#E2DFD8] transition-colors tracking-wide interactive"
-              >
-                {item.label}
-              </a>
-            ))}
             <Link
               to="/court-search"
               className={`font-['Inter'] text-[13px] transition-colors tracking-wide interactive ${

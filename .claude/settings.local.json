@@ -10,7 +10,10 @@
       "Bash(~/miniconda3/envs/aichoir/bin/python3:*)",
       "Bash(npm install:*)",
       "Bash(npm run build:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(conda env list:*)",
+      "Bash(chmod:*)",
+      "Bash(~/miniforge3/envs/aichoir/bin/pip list:*)"
     ]
   }
 }

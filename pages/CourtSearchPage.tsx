@@ -19,19 +19,37 @@ interface SearchParticle {
   noiseOffsetY: number;
 }
 
+interface CourtCase {
+  case_number: string;
+  case_type: string;
+  filing_date: string;
+  status: string;
+  county: string;
+  parties: string;
+  court_division: string;
+  judge: string;
+  amount: string;
+  disposition_date: string;
+  section: string;
+}
+
+interface SearchResults {
+  summary: {
+    total_cases: number;
+    open_cases: number;
+    closed_cases: number;
+    has_open_cases: boolean;
+  };
+  cases: CourtCase[];
+  metadata: {
+    searched_counties: string[];
+  };
+}
+
 const PARTICLE_COUNT = 200;
 const ACTIVE_COUNT = 50;
 const CIRCLE_RADIUS = 80;
 const PARTICLE_COLORS = ['#E2DFD8', '#F2EFE8', '#D8D5CC'];
-
-const COUNTIES = [
-  'Searching Miami-Dade County...',
-  'Searching Broward County...',
-  'Searching Palm Beach County...',
-  'Searching New York County...',
-  'Searching Kings County...',
-  'Compiling results...',
-];
 
 function createParticles(w: number, h: number): SearchParticle[] {
   const particles: SearchParticle[] = [];
@@ -76,6 +94,7 @@ const CourtSearchPage: React.FC = () => {
   const rotationRef = useRef<number>(0);
   const modeRef = useRef<'idle' | 'loading' | 'done'>('idle');
   const timeRef = useRef<number>(0);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -84,6 +103,8 @@ const CourtSearchPage: React.FC = () => {
   const [statusText, setStatusText] = useState('');
   const [searchComplete, setSearchComplete] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [results, setResults] = useState<SearchResults | null>(null);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   // GSAP entrance animations
   useEffect(() => {
@@ -102,6 +123,7 @@ const CourtSearchPage: React.FC = () => {
 
     return () => {
       cancelAnimationFrame(animFrameRef.current);
+      if (pollRef.current) clearInterval(pollRef.current);
     };
   }, []);
 
@@ -202,83 +224,143 @@ const CourtSearchPage: React.FC = () => {
     };
   }, []);
 
-  const handleSearch = useCallback(() => {
+  const showCompletion = useCallback((data: SearchResults | null, error: string | null) => {
+    const particles = particlesRef.current;
+    const sc = spinnerCenterRef.current;
+
+    // Scatter particles outward
+    modeRef.current = 'done';
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      if (p.active) {
+        const dirX = p.x - sc.x;
+        const dirY = p.y - sc.y;
+        const dist = Math.sqrt(dirX * dirX + dirY * dirY) || 1;
+        gsap.to(p, {
+          targetX: p.x + (dirX / dist) * 400,
+          targetY: p.y + (dirY / dist) * 400,
+          opacity: 0,
+          duration: 0.8,
+          ease: 'power2.in',
+        });
+      }
+    }
+    gsap.to(statusRef.current, { opacity: 0, duration: 0.5 });
+
+    // Show results after scatter
+    setTimeout(() => {
+      if (error) {
+        setSearchError(error);
+      } else {
+        setResults(data);
+      }
+      setSearchComplete(true);
+      setIsSearching(false);
+
+      // Scroll form card into view so "New Search" button is visible
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      gsap.fromTo(resultsRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }
+      );
+    }, 800);
+  }, []);
+
+  const handleSearch = useCallback(async () => {
     if (!firstName.trim() || !lastName.trim() || isSearching) return;
 
     setIsSearching(true);
     setSearchComplete(false);
+    setResults(null);
+    setSearchError(null);
     modeRef.current = 'loading';
     const particles = particlesRef.current;
 
-    const tl = gsap.timeline();
+    // Start loading animation: button fades, inactive particles fade, status appears
+    gsap.to(buttonRef.current, { opacity: 0, duration: 0.4, ease: 'power2.out' });
 
-    // t=0.0s — button fades out
-    tl.to(buttonRef.current, { opacity: 0, duration: 0.4, ease: 'power2.out' }, 0);
-
-    // t=0.3s — inactive particles fade out while active ones travel to spinner
-    tl.call(() => {
+    setTimeout(() => {
       for (let i = 0; i < particles.length; i++) {
         if (!particles[i].active) {
           gsap.to(particles[i], { opacity: 0, duration: 0.8 });
         }
       }
-    }, [], 0.3);
+    }, 300);
 
-    // t=1.2s — status text appears (gives particles time to arrive)
-    tl.call(() => {
-      setStatusText(COUNTIES[0]);
-    }, [], 1.2);
-    tl.fromTo(statusRef.current, { opacity: 0 }, { opacity: 1, duration: 0.4 }, 1.2);
+    setTimeout(() => {
+      setStatusText('Starting search...');
+      gsap.fromTo(statusRef.current, { opacity: 0 }, { opacity: 1, duration: 0.4 });
+    }, 1200);
 
-    // County cycling every 1.2s
-    for (let i = 1; i < COUNTIES.length; i++) {
-      const countyIndex = i;
-      tl.call(() => {
-        setStatusText(COUNTIES[countyIndex]);
-      }, [], 1.2 + i * 1.2);
-    }
+    // POST to start the search
+    try {
+      const res = await fetch('/api/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          first_name: firstName.trim(),
+          last_name: lastName.trim(),
+          middle_name: middleName.trim() || undefined,
+          date_of_birth: dob.trim() || undefined,
+        }),
+      });
 
-    // Particles scatter outward + fade, status fades
-    const scatterTime = 1.2 + COUNTIES.length * 1.2;
-    tl.call(() => {
-      modeRef.current = 'done';
-      const sc = spinnerCenterRef.current;
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        if (p.active) {
-          const dirX = p.x - sc.x;
-          const dirY = p.y - sc.y;
-          const dist = Math.sqrt(dirX * dirX + dirY * dirY) || 1;
-          gsap.to(p, {
-            targetX: p.x + (dirX / dist) * 400,
-            targetY: p.y + (dirY / dist) * 400,
-            opacity: 0,
-            duration: 0.8,
-            ease: 'power2.in',
-          });
-        }
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Failed to start search' }));
+        showCompletion(null, err.error || 'Failed to start search');
+        return;
       }
-    }, [], scatterTime);
-    tl.to(statusRef.current, { opacity: 0, duration: 0.5 }, scatterTime);
 
-    // Results area fades in
-    tl.call(() => {
-      setSearchComplete(true);
-      setIsSearching(false);
-    }, [], scatterTime + 0.8);
-    tl.fromTo(resultsRef.current,
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' },
-      scatterTime + 0.8
-    );
-  }, [firstName, lastName, isSearching]);
+      const { job_id } = await res.json();
+
+      // Poll for status every 3 seconds
+      pollRef.current = setInterval(async () => {
+        try {
+          const statusRes = await fetch(`/api/status/${job_id}`);
+          const statusData = await statusRes.json();
+
+          if (statusData.message) {
+            setStatusText(statusData.message);
+          }
+
+          if (statusData.status === 'complete') {
+            if (pollRef.current) clearInterval(pollRef.current);
+            pollRef.current = null;
+
+            // Fetch full results
+            const resultsRes = await fetch(`/api/results/${job_id}`);
+            const resultsData = await resultsRes.json();
+            showCompletion(resultsData, null);
+          } else if (statusData.status === 'error') {
+            if (pollRef.current) clearInterval(pollRef.current);
+            pollRef.current = null;
+            showCompletion(null, statusData.message || 'Search failed');
+          }
+        } catch {
+          if (pollRef.current) clearInterval(pollRef.current);
+          pollRef.current = null;
+          showCompletion(null, 'Lost connection to server');
+        }
+      }, 3000);
+    } catch {
+      showCompletion(null, 'Could not connect to server');
+    }
+  }, [firstName, lastName, middleName, dob, isSearching, showCompletion]);
 
   const handleReset = useCallback(() => {
     modeRef.current = 'idle';
     setSearchComplete(false);
     setIsSearching(false);
     setStatusText('');
+    setResults(null);
+    setSearchError(null);
     rotationRef.current = 0;
+
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
 
     const { w, h } = canvasSizeRef.current;
     particlesRef.current = createParticles(w, h);
@@ -310,7 +392,7 @@ const CourtSearchPage: React.FC = () => {
               Civil Court Search
             </h1>
             <p className="font-['Inter'] font-light text-[#7A7D85] text-base md:text-lg max-w-[520px] mx-auto">
-              Search across Florida and New York civil court records. Enter a name to begin.
+              Search across Florida civil court records. Enter a name to begin.
             </p>
           </div>
 
@@ -372,55 +454,151 @@ const CourtSearchPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Search Button — prominent, stands out */}
+              {/* Search / New Search Button */}
               <div className="flex justify-center">
-                <button
-                  ref={buttonRef}
-                  onClick={handleSearch}
-                  disabled={!firstName.trim() || !lastName.trim() || isSearching}
-                  className="px-14 py-4 rounded-full border border-[#E2DFD8]/30 bg-[#E2DFD8]/10 relative interactive disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:bg-[#E2DFD8]/15 hover:border-[#E2DFD8]/50"
-                >
-                  <span
-                    ref={buttonTextRef}
-                    className="font-['JetBrains_Mono'] text-[13px] uppercase tracking-[0.15em] text-[#E2DFD8]"
+                {searchComplete ? (
+                  <button
+                    key="new-search"
+                    onClick={handleReset}
+                    className="px-14 py-4 rounded-full border border-[#E2DFD8]/30 bg-[#E2DFD8]/10 relative interactive transition-all hover:bg-[#E2DFD8]/15 hover:border-[#E2DFD8]/50"
                   >
-                    Search Records
-                  </span>
-                </button>
+                    <span className="font-['JetBrains_Mono'] text-[13px] uppercase tracking-[0.15em] text-[#E2DFD8]">
+                      New Search
+                    </span>
+                  </button>
+                ) : (
+                  <button
+                    key="search"
+                    ref={buttonRef}
+                    onClick={handleSearch}
+                    disabled={!firstName.trim() || !lastName.trim() || isSearching}
+                    className="px-14 py-4 rounded-full border border-[#E2DFD8]/30 bg-[#E2DFD8]/10 relative interactive disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:bg-[#E2DFD8]/15 hover:border-[#E2DFD8]/50"
+                  >
+                    <span
+                      ref={buttonTextRef}
+                      className="font-['JetBrains_Mono'] text-[13px] uppercase tracking-[0.15em] text-[#E2DFD8]"
+                    >
+                      Search Records
+                    </span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
 
           {/* Spinner anchor — this invisible element marks where the spinner circle forms */}
-          <div ref={spinnerAnchorRef} className="flex flex-col items-center mb-12" style={{ minHeight: 200 }}>
+          <div ref={spinnerAnchorRef} className="flex flex-col items-center mb-12" style={{ minHeight: searchComplete ? 0 : 200, transition: 'min-height 0.5s ease' }}>
             {/* Status text below spinner */}
-            <div className="mt-[180px]">
-              <div ref={statusRef} className="opacity-0 h-6 text-center">
-                <span className="font-['JetBrains_Mono'] text-[12px] tracking-[0.08em] text-[#7A7D85]">
-                  {statusText}
-                </span>
+            {!searchComplete && (
+              <div className="mt-[180px]">
+                <div ref={statusRef} className="opacity-0 h-6 text-center">
+                  <span className="font-['JetBrains_Mono'] text-[12px] tracking-[0.08em] text-[#7A7D85]">
+                    {statusText}
+                  </span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Results Area */}
           <div ref={resultsRef} className="max-w-[640px] mx-auto opacity-0">
             {searchComplete && (
-              <div className="bg-[#141821]/60 border border-[#E2DFD8]/10 rounded-2xl p-8 backdrop-blur-sm">
-                <div className="text-center">
-                  <span className="font-['JetBrains_Mono'] text-[12px] uppercase tracking-[0.12em] text-[#4A4D55] block mb-3">
-                    Search Results
-                  </span>
-                  <p className="font-['Inter'] font-light text-[#7A7D85] text-sm mb-6">
-                    No records found for {firstName} {lastName}.
-                  </p>
-                  <button
-                    onClick={handleReset}
-                    className="px-8 py-3 rounded-full border border-[#E2DFD8]/30 bg-[#E2DFD8]/10 font-['JetBrains_Mono'] text-[12px] uppercase tracking-[0.12em] text-[#E2DFD8] hover:bg-[#E2DFD8]/15 hover:border-[#E2DFD8]/50 transition-all interactive"
-                  >
-                    New Search
-                  </button>
-                </div>
+              <div className="space-y-4">
+                {/* Error state */}
+                {searchError && (
+                  <div className="bg-[#141821]/60 border border-[#E2DFD8]/10 rounded-2xl p-8 backdrop-blur-sm">
+                    <div className="text-center">
+                      <span className="font-['JetBrains_Mono'] text-[12px] uppercase tracking-[0.12em] text-[#4A4D55] block mb-3">
+                        Error
+                      </span>
+                      <p className="font-['Inter'] font-light text-[#7A7D85] text-sm mb-6">
+                        {searchError}
+                      </p>
+                      <button
+                        onClick={handleReset}
+                        className="px-8 py-3 rounded-full border border-[#E2DFD8]/30 bg-[#E2DFD8]/10 font-['JetBrains_Mono'] text-[12px] uppercase tracking-[0.12em] text-[#E2DFD8] hover:bg-[#E2DFD8]/15 hover:border-[#E2DFD8]/50 transition-all interactive"
+                      >
+                        Try Again
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Results */}
+                {results && (
+                  <>
+                    {/* Summary bar */}
+                    <div className="bg-[#141821]/60 border border-[#E2DFD8]/10 rounded-2xl p-6 backdrop-blur-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="font-['JetBrains_Mono'] text-[12px] uppercase tracking-[0.12em] text-[#4A4D55]">
+                          Results for {firstName} {lastName}
+                        </span>
+                        <div className="text-center">
+                          <span className="font-['Syne'] font-bold text-[#E2DFD8] text-xl block">{results.summary.open_cases}</span>
+                          <span className="font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.12em] text-[#4A4D55]">Open Cases</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Case cards */}
+                    {results.cases.length === 0 ? (
+                      <div className="bg-[#141821]/60 border border-[#E2DFD8]/10 rounded-2xl p-8 backdrop-blur-sm">
+                        <div className="text-center">
+                          <p className="font-['Inter'] font-light text-[#7A7D85] text-sm">
+                            No records found for {firstName} {lastName}.
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      results.cases.map((c, i) => (
+                        <div
+                          key={i}
+                          className="bg-[#141821]/60 border border-[#E2DFD8]/30 rounded-2xl p-6 backdrop-blur-sm"
+                        >
+                          <div className="flex items-start justify-between mb-4">
+                            <div>
+                              <span className="font-['JetBrains_Mono'] text-[11px] uppercase tracking-[0.12em] text-[#4A4D55]">
+                                {c.county} &middot; {c.case_number}
+                              </span>
+                              <h3 className="font-['Syne'] font-semibold text-[#E2DFD8] text-base mt-1">
+                                {c.case_type}
+                              </h3>
+                            </div>
+                            <span className="font-['JetBrains_Mono'] text-[11px] uppercase tracking-[0.12em] px-3 py-1 rounded-full border text-[#E2DFD8] border-[#E2DFD8]/30 bg-[#E2DFD8]/8">
+                              {c.status}
+                            </span>
+                          </div>
+                          <p className="font-['Inter'] text-[#7A7D85] text-sm mb-3">
+                            {c.parties}
+                          </p>
+                          <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                            <div>
+                              <span className="font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.12em] text-[#4A4D55]">Filed</span>
+                              <span className="font-['Inter'] text-[#7A7D85] text-xs block">{c.filing_date}</span>
+                            </div>
+                            {c.judge && (
+                              <div>
+                                <span className="font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.12em] text-[#4A4D55]">Judge</span>
+                                <span className="font-['Inter'] text-[#7A7D85] text-xs block">{c.judge}</span>
+                              </div>
+                            )}
+                            {c.amount && (
+                              <div>
+                                <span className="font-['JetBrains_Mono'] text-[10px] uppercase tracking-[0.12em] text-[#4A4D55]">Amount</span>
+                                <span className="font-['Inter'] text-[#7A7D85] text-xs block">{c.amount}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+
+                    {/* Disclaimer */}
+                    <p className="font-['Inter'] font-light text-[#4A4D55] text-xs text-center mt-2">
+                      Results are for preliminary due diligence only. Verify all records through official court portals.
+                    </p>
+                  </>
+                )}
               </div>
             )}
           </div>
