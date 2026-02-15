@@ -45,7 +45,7 @@ const Process: React.FC = () => {
   ];
 
   return (
-    <section ref={triggerRef} className="bg-[#0E1117] min-h-screen">
+    <section ref={triggerRef} id="process" className="bg-[#0E1117] min-h-screen">
       <div className="container mx-auto px-6 max-w-[1100px] pt-[100px] pb-20">
         <span className="font-['JetBrains_Mono'] text-[12px] uppercase tracking-[0.12em] text-[#4A4D55] mb-6 block">
           PROCESS
@@ -62,7 +62,7 @@ const Process: React.FC = () => {
         {steps.map((step) => (
           <div 
             key={step.number} 
-            className="process-step w-full md:w-[80vw] lg:w-[60vw] flex items-center px-6 md:px-[10vw] border-b md:border-b-0 md:border-r border-[#E2DFD8]/06 py-20 md:py-0"
+            className="process-step w-full md:w-[80vw] lg:w-[60vw] flex items-center px-6 md:px-[10vw] border-b last:border-b-0 md:border-b-0 md:border-r border-[#E2DFD8]/06 py-20 md:py-0"
           >
             <div className="relative">
               <span className="absolute -top-12 md:-top-20 left-0 font-['Syne'] font-extrabold text-[6rem] md:text-[8rem] text-[#4A4D55]/10 pointer-events-none">

@@ -12,6 +12,20 @@ const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const navItems = [
+    { label: 'Process', id: 'process' },
+    { label: 'Results', id: 'results' },
+    { label: 'About', id: 'about' },
+  ];
+
   return (
     <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 h-[72px] flex items-center ${
       isScrolled ? 'bg-[#0E1117]/80 backdrop-blur-xl border-b border-[#E2DFD8]/05' : 'bg-transparent'
@@ -20,23 +34,28 @@ const Navbar: React.FC = () => {
         <div className="font-['Syne'] font-extrabold text-xl tracking-tight text-[#E2DFD8] interactive">
           AI CHOIR
         </div>
-        
+
         <div className="hidden md:flex items-center gap-10">
           <div className="flex gap-8">
-            {['Process', 'Results', 'About', 'Contact'].map((item) => (
-              <a 
-                key={item} 
-                href={`#${item.toLowerCase()}`}
+            {navItems.map((item) => (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                onClick={(e) => handleNavClick(e, item.id)}
                 className="font-['Inter'] text-[13px] text-[#7A7D85] hover:text-[#E2DFD8] transition-colors tracking-wide interactive"
               >
-                {item}
+                {item.label}
               </a>
             ))}
           </div>
-          
-          <button className="px-6 py-2.5 rounded-full border border-[#E2DFD8]/15 font-['Inter'] font-medium text-[13px] text-[#E2DFD8] hover:bg-[#E2DFD8]/05 hover:border-[#E2DFD8]/30 transition-all interactive">
+
+          <a
+            href="#contact"
+            onClick={(e) => handleNavClick(e, 'contact')}
+            className="px-6 py-2.5 rounded-full border border-[#E2DFD8]/15 font-['Inter'] font-medium text-[13px] text-[#E2DFD8] hover:bg-[#E2DFD8]/05 hover:border-[#E2DFD8]/30 transition-all interactive"
+          >
             Book a Call
-          </button>
+          </a>
         </div>
 
         {/* Mobile Menu Icon Placeholder */}
