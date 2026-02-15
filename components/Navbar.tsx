@@ -1,8 +1,11 @@
 
 import React, { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -14,9 +17,13 @@ const Navbar: React.FC = () => {
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
+    if (location.pathname === '/') {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      navigate(`/#${id}`);
     }
   };
 
@@ -26,14 +33,16 @@ const Navbar: React.FC = () => {
     { label: 'About', id: 'about' },
   ];
 
+  const isCourtSearch = location.pathname === '/court-search';
+
   return (
     <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 h-[72px] flex items-center ${
       isScrolled ? 'bg-[#0E1117]/80 backdrop-blur-xl border-b border-[#E2DFD8]/05' : 'bg-transparent'
     }`}>
       <div className="container mx-auto px-6 max-w-[1100px] flex justify-between items-center">
-        <div className="font-['Syne'] font-extrabold text-xl tracking-tight text-[#E2DFD8] interactive">
+        <Link to="/" className="font-['Syne'] font-extrabold text-xl tracking-tight text-[#E2DFD8] interactive">
           AI CHOIR
-        </div>
+        </Link>
 
         <div className="hidden md:flex items-center gap-10">
           <div className="flex gap-8">
@@ -47,6 +56,14 @@ const Navbar: React.FC = () => {
                 {item.label}
               </a>
             ))}
+            <Link
+              to="/court-search"
+              className={`font-['Inter'] text-[13px] transition-colors tracking-wide interactive ${
+                isCourtSearch ? 'text-[#E2DFD8]' : 'text-[#7A7D85] hover:text-[#E2DFD8]'
+              }`}
+            >
+              Court Search
+            </Link>
           </div>
 
           <a
