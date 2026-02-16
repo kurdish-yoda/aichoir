@@ -3,6 +3,7 @@ import sys
 import time
 import uuid
 import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 
@@ -30,13 +31,23 @@ def run_search(job_id, criteria):
     try:
         jobs[job_id]['status'] = 'running'
 
-        # Only search Florida counties (Miami-Dade, Broward)
+        # Search Florida counties in parallel
         all_cases = []
-        for county in COUNTIES:
-            jobs[job_id]['message'] = f'Searching {county.replace("-", " ").title()} County...'
+        jobs[job_id]['message'] = 'Searching all counties...'
+
+        def search_county(county):
             scraper = get_scraper(county)
-            cases = scraper.search(criteria)
-            all_cases.extend(cases)
+            return scraper.search(criteria)
+
+        with ThreadPoolExecutor(max_workers=len(COUNTIES)) as executor:
+            futures = {executor.submit(search_county, c): c for c in COUNTIES}
+            for future in as_completed(futures):
+                county = futures[future]
+                try:
+                    cases = future.result()
+                    all_cases.extend(cases)
+                except Exception as e:
+                    print(f'[Search] {county} failed: {e}')
 
         # Filter out closed cases — only keep open/active/pending
         open_cases = [c for c in all_cases if c.status.lower() in OPEN_STATUSES]
@@ -50,7 +61,7 @@ def run_search(job_id, criteria):
 
         elapsed = time.time() - start_time
         print(f'[Search] {criteria.first_name} {criteria.last_name} — '
-              f'{len(open_cases)} open cases (of {len(cases)} total) — '
+              f'{len(open_cases)} open cases (of {len(all_cases)} total) — '
               f'{elapsed:.1f}s')
     except Exception as e:
         elapsed = time.time() - start_time
