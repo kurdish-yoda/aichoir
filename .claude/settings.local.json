@@ -13,7 +13,8 @@
       "Bash(npx tsc:*)",
       "Bash(conda env list:*)",
       "Bash(chmod:*)",
-      "Bash(~/miniforge3/envs/aichoir/bin/pip list:*)"
+      "Bash(~/miniforge3/envs/aichoir/bin/pip list:*)",
+      "Bash(git checkout backend/app.py)"
     ]
   }
 }
