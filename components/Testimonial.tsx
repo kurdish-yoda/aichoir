@@ -3,7 +3,7 @@ import React from 'react';
 
 const Testimonial: React.FC = () => {
   return (
-    <section className="py-[140px] md:py-[200px] bg-[#0E1117] relative overflow-hidden">
+    <section className="py-[80px] md:py-[200px] bg-[#0E1117] relative overflow-hidden border-t border-[#E2DFD8]/10 md:border-t-0">
       <div className="container mx-auto px-6 max-w-[750px] relative z-10 text-center">
         <blockquote className="mb-12">
           <p className="font-['Syne'] font-normal text-[clamp(1.2rem,2.2vw,1.7rem)] text-[#E2DFD8] leading-[1.5] italic mb-10">

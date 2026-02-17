@@ -42,7 +42,7 @@ const FeatureCard = ({ icon, title, body, index }: { icon: React.ReactNode, titl
 
 const Features: React.FC = () => {
   return (
-    <section className="py-[140px] bg-[#0E1117]">
+    <section className="py-[80px] md:py-[140px] bg-[#0E1117] border-t border-[#E2DFD8]/10 md:border-t-0">
       <div className="container mx-auto px-6 max-w-[1100px]">
         <div className="mb-20">
           <span className="font-['JetBrains_Mono'] text-[12px] uppercase tracking-[0.12em] text-[#4A4D55] mb-6 block">

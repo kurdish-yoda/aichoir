@@ -45,7 +45,7 @@ const Process: React.FC = () => {
   ];
 
   return (
-    <section ref={triggerRef} id="process" className="bg-[#0E1117] min-h-screen">
+    <section ref={triggerRef} id="process" className="bg-[#0E1117] min-h-screen border-t border-[#E2DFD8]/10 md:border-t-0">
       <div className="container mx-auto px-6 max-w-[1100px] pt-[100px] pb-20">
         <span className="font-['JetBrains_Mono'] text-[12px] uppercase tracking-[0.12em] text-[#4A4D55] mb-6 block">
           PROCESS

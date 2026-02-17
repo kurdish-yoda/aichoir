@@ -8,6 +8,8 @@ const IntroSequence: React.FC = () => {
   useEffect(() => {
     const tl = gsap.timeline();
 
+    const isMobile = window.innerWidth < 768;
+
     tl.to(textRef.current, {
       opacity: 1,
       duration: 0.8,
@@ -16,7 +18,7 @@ const IntroSequence: React.FC = () => {
       .to(
         textRef.current,
         {
-          letterSpacing: "0.5em",
+          letterSpacing: isMobile ? "0.25em" : "0.5em",
           duration: 1.2,
           ease: "power1.inOut",
         },
@@ -41,7 +43,7 @@ const IntroSequence: React.FC = () => {
     >
       <div
         ref={textRef}
-        className="text-[#E2DFD8] font-['Syne'] font-extrabold text-4xl opacity-0 tracking-tight"
+        className="text-[#E2DFD8] font-['Syne'] font-extrabold text-2xl md:text-4xl opacity-0 tracking-tight"
       >
         AI CHOIR
       </div>

@@ -170,7 +170,7 @@ const Hero: React.FC = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="min-h-screen flex items-center pt-24 pb-20 overflow-hidden relative bg-[#0E1117]">
+    <section ref={sectionRef} className="min-h-screen flex items-center pt-0 md:pt-24 pb-20 overflow-hidden relative bg-[#0E1117]">
       {/* Intense 3D Particle Canvas Background */}
       <canvas 
         ref={canvasRef} 
@@ -199,7 +199,7 @@ const Hero: React.FC = () => {
             We don't automate everything. We work alongside you to find exactly where AI removes the busywork — and where the human touch should stay.
           </p>
           
-          <div ref={ctaRef} className="flex flex-col sm:flex-row items-start sm:items-center gap-10 opacity-0">
+          <div ref={ctaRef} className="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 opacity-0">
             <a href="#process" onClick={(e) => { e.preventDefault(); document.getElementById('process')?.scrollIntoView({ behavior: 'smooth' }); }} className="group relative px-10 py-4 rounded-full border border-[#E2DFD8]/20 font-['Inter'] font-medium text-[16px] text-[#E2DFD8] overflow-hidden transition-all interactive inline-block">
               <span className="relative z-10">See How We Work</span>
               <div className="absolute inset-0 bg-[#E2DFD8]/05 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>

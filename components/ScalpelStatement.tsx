@@ -24,9 +24,9 @@ const ScalpelStatement: React.FC = () => {
   }, []);
 
   return (
-    <section className="py-[180px] bg-[#0E1117] text-center overflow-hidden">
+    <section className="py-[100px] md:py-[180px] bg-[#0E1117] text-center overflow-hidden border-t border-[#E2DFD8]/10 md:border-t-0">
       <div className="container mx-auto px-6 max-w-[1100px]">
-        <h2 className="font-['Syne'] font-bold text-[clamp(3rem,8vw,6rem)] text-[#E2DFD8] leading-tight mb-12">
+        <h2 className="font-['Syne'] font-bold text-[clamp(2rem,8vw,6rem)] text-[#E2DFD8] leading-tight mb-12">
           A <span 
             ref={shimmerRef} 
             className="relative inline-block px-2 text-[#E2DFD8] bg-clip-text"

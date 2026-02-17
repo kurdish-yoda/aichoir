@@ -77,7 +77,7 @@ const TechStack: React.FC = () => {
   return (
     <section ref={triggerRef} className="relative h-screen bg-[#0E1117] overflow-hidden">
       <div className="container mx-auto px-6 max-w-[1100px] h-full relative z-10 pointer-events-none">
-        <div className="absolute top-24 left-6">
+        <div className="absolute top-16 md:top-24 left-6">
           <span className="font-['JetBrains_Mono'] text-[12px] uppercase tracking-[0.12em] text-[#4A4D55] mb-4 block">
             CORE ARCHITECTURE
           </span>
@@ -86,7 +86,7 @@ const TechStack: React.FC = () => {
           </h2>
         </div>
 
-        <div ref={containerRef} className="relative w-full h-full flex items-center justify-center">
+        <div ref={containerRef} className="relative w-full h-full flex items-center justify-center pt-16 md:pt-0">
           {data.map((item, i) => (
             <div 
               key={i} 

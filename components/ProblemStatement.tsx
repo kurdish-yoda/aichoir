@@ -27,7 +27,7 @@ const ProblemStatement: React.FC = () => {
   const closingText = "That's what we do.";
 
   return (
-    <section ref={sectionRef} id="about" className="py-[140px] md:py-[200px] bg-[#0E1117]">
+    <section ref={sectionRef} id="about" className="py-[80px] md:py-[200px] bg-[#0E1117] border-t border-[#E2DFD8]/10 md:border-t-0">
       <div className="container mx-auto px-6 max-w-[1100px]">
         <div ref={textRef} className="max-w-[750px] mx-auto text-center font-['Syne'] font-normal text-[clamp(1.4rem,2.8vw,2.2rem)] leading-[1.4] text-[#4A4D55]">
           {mainText.split(' ').map((word, i) => (

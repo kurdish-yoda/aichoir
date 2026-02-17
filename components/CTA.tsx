@@ -30,7 +30,7 @@ const CTA: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="py-[140px] md:py-[180px] bg-[#0E1117] relative overflow-hidden">
+    <section id="contact" className="py-[80px] md:py-[180px] bg-[#0E1117] relative overflow-hidden border-t border-[#E2DFD8]/10 md:border-t-0">
       {/* Subtle Warm Background Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#D4C4B0] rounded-full blur-[140px] opacity-[0.05] pointer-events-none" />
 

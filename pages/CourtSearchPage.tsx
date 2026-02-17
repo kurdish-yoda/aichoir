@@ -490,7 +490,7 @@ const CourtSearchPage: React.FC = () => {
           <div ref={spinnerAnchorRef} className="flex flex-col items-center mb-12" style={{ minHeight: searchComplete ? 0 : 200, transition: 'min-height 0.5s ease' }}>
             {/* Status text below spinner */}
             {!searchComplete && (
-              <div className="mt-[180px]">
+              <div className="mt-[210px]">
                 <div ref={statusRef} className="opacity-0 h-6 text-center">
                   <span className="font-['JetBrains_Mono'] text-[12px] tracking-[0.08em] text-[#7A7D85]">
                     {statusText}
