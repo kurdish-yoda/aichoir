@@ -170,7 +170,7 @@ const Hero: React.FC = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="min-h-screen flex items-center pt-0 md:pt-24 pb-20 overflow-hidden relative bg-[#0E1117]">
+    <section ref={sectionRef} className="min-h-screen flex items-center pt-16 md:pt-24 pb-20 overflow-hidden relative bg-[#0E1117]">
       {/* Intense 3D Particle Canvas Background */}
       <canvas 
         ref={canvasRef} 
